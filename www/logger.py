@@ -42,21 +42,20 @@ options = {"arduino" : arduino,
 }
 
 c.execute('''CREATE TABLE IF NOT EXISTS intothedoor(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, datetime TEXT NOT NULL, cardcode TEXT NOT NULL)''')
-c.execute('''CREATE TABLE IF NOT EXISTS allowedusers(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL, cardcode TEXT NOT NULL, timeAccessProfile TEXT NOT NULL)''')
+c.execute('''CREATE TABLE IF NOT EXISTS fablaballowedusers(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL, cardcode TEXT NOT NULL, timeAccessProfile TEXT NOT NULL)''')
+c.execute('''CREATE TABLE IF NOT EXISTS arduinoallowedusers(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL, cardcode TEXT NOT NULL)''')
 
-def insert_user(dataBase, username=None, cardcode=None, timeAccessProfile=None ):
-  c = db.cursor()
-  log = open('log.txt', 'w')
-  if username and cardcode and timeAccesProfile:
-		c.execute("INSERT INTO allowedusers(username, cardcode, timeAccessProfile) VALUES (?,?,?)", (username, cardcode, timeAccessProfile))
-		dataBase.commit()
-  else:
-		log.write('You need to provide a username, cardcode and time Access Profile')
-		return
-  log.close()
-
-  return
-
+# def insert_user(dataBase, username=None, cardcode=None, timeAccessProfile=None ):
+#  c = db.cursor()
+#  log = open('log.txt', 'w')
+#  if username and cardcode and timeAccesProfile:
+#		c.execute("INSERT INTO fablaballowedusers(username, cardcode, timeAccessProfile) VALUES (?,?,?)", (username, cardcode, timeAccessProfile))
+#		dataBase.commit()
+#  else:
+#		log.write('You need to provide a username, cardcode and time Access Profile')
+#		return
+#  log.close()
+#  return
 #insert_user(db, 'Utente', '1815453204', 'ordinario')
 #insert_user(db, 'presidente', '181545325', 'direttivo')
 
@@ -72,12 +71,12 @@ def check_allowed_user(dataBase, cardcode=None):
 
   if cardcode:
 		cardcode = (cardcode,)
-		c.execute("select count (*) from allowedusers where cardcode=?", cardcode)
+		c.execute("select count (*) from fablaballowedusers where cardcode=?", cardcode)
 		result = c.fetchone()[0]
 		
 		if result > 0: # the cardcode is present in the database
 			# now check the time
-			c.execute("select timeAccessProfile and username from allowedusers where cardcode=?", cardcode)
+			c.execute("select timeAccessProfile and username from fablaballowedusers where cardcode=?", cardcode)
 			timeAccessProfile = c.fetchone()[0] # string corresponding to the timeAccessProfile
 			options[timeAccessProfile]() #search inside the dictionary
 
@@ -103,6 +102,12 @@ def check_allowed_user(dataBase, cardcode=None):
 				print 'n'
 
 		else:
+		  
+		c.execute("select username from arduinoallowedusers where cardcode=?", cardcode)
+		result = c.fetchone()[0]
+		if result > 0:
+			print 'y'
+		else:  
 			print 'n'
 
   return
