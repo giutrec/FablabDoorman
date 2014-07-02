@@ -6,7 +6,7 @@
 
 #define IRQ   (4)
 #define RESET (6)  // Not connected by default on the NFC Shield
-#define PYPATH F("/mnt/sda1/arduino/www/serraturaYun/logger.py")
+#define PYPATH F("/mnt/sda1/arduino/www/fablabdoorman/logger.py")
 
 const int lockEnable = 9,
           feedbackLed = 13;
