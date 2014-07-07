@@ -3,6 +3,7 @@
 from sys import argv
 import sqlite3
 from datetime import datetime
+import time
 import os
 source_dir = os.path.dirname(os.path.abspath(__file__))
 cardcode = ''.join(argv[1])
@@ -28,7 +29,7 @@ def Ordinario():
 				start_time = "16:15"
 				stop_time = "20:00"
 				weekend = False
-
+	
 #dictionary with all time profiles 
 options = {"direttivo" : Direttivo,
            "host" : Host,
@@ -38,6 +39,7 @@ options = {"direttivo" : Direttivo,
 c.execute('''CREATE TABLE IF NOT EXISTS intothedoor(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, datetime TEXT NOT NULL, cardcode TEXT NOT NULL)''')
 c.execute('''CREATE TABLE IF NOT EXISTS fablaballowedusers(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL, cardcode TEXT NOT NULL, timeAccessProfile TEXT NOT NULL)''')
 c.execute('''CREATE TABLE IF NOT EXISTS arduinoallowedusers(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL, cardcode TEXT NOT NULL)''')
+c.execute('''CREATE TABLE IF NOT EXISTS visitorsallowedusers(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL, cardcode TEXT NOT NULL, start_time TEXT NOT NULL, end_time TEXT NOT NULL, expiredate TEXT NOT NULL, startdate TEXT NOT NULL )''')
 
 def insert_fabuser(dataBase, username=None, cardcode=None, timeAccessProfile=None):
   c = db.cursor()
@@ -71,6 +73,21 @@ def insert_arduser(dataBase, username=None, cardcode=None):
 
 #insert_arduser(db, 'arduino', '1815453207',)
 
+def insert_visitorsusers(dataBase, username=None, cardcode=None, start_time=None, end_time=None, expiredate=None, startdate=None ):
+  c = db.cursor()
+  log = open('log.txt', 'w')
+  if username and cardcode:
+		c.execute("INSERT INTO visitorsallowedusers(username, cardcode, start_time, end_time, expiredate, startdate) VALUES (?,?,?,?,?,?)", ( username, cardcode, start_time, end_time, expiredate, startdate))
+		dataBase.commit()
+  else:
+		log.write('You need to provide a username and a cardcode')
+		return
+  log.close()
+
+  return
+
+#insert_visitorsusers(db, 'visitor', '1815453208', '8', '23', '1404774000','1404720000')
+
 def log_rfid_read(dataBase, cardcode):
   c = db.cursor()
   date = str(datetime.utcnow().isoformat())
@@ -103,11 +120,13 @@ def check_allowed_user(dataBase, cardcode=None):
 			weekday = now.isoweekday()
 			c.execute("select username from fablaballowedusers where cardcode=?", cardcode)
                         name = c.fetchone()[0]
-			if 	weekday <= 5: # weekly day
+			if	 1 < weekday <= 5 : # weekly day
 				# check if request is in the time range
 				if now >= start_date and now <= stop_date:
 					print 'y'
+					print weekday
 					#print name
+					
 				else:
 					print 'n'
 					#print 'outofhours'
@@ -128,9 +147,29 @@ def check_allowed_user(dataBase, cardcode=None):
 				print 'y'
 				#print name
 			else:
-				print 'n'
+				c.execute("select count (*) from visitorsallowedusers where cardcode=?", cardcode)
+				result = c.fetchone()[0]
+			
+				if result > 0:
+					c.execute("select * from visitorsallowedusers where cardcode=?", cardcode)
+					nowtime = int(time.time())
+					queryres = c.fetchone()
+					if  int(queryres[6]) <  nowtime < int(queryres[5]) :
+						                        
+						now = datetime.today()
+						nowh = now.strftime('%H')
+						if int(queryres[3]) < int(nowh) < int(queryres[4]):
+							print 'y'
+						else:
+							print 'n'	
+												
+					else:
+						print 'n' 
+				else:
+					print 'n'
 
   return
 
 log_rfid_read(db, cardcode)
 check_allowed_user(db, cardcode)
+
