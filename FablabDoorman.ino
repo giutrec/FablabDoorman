@@ -9,8 +9,8 @@ LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars
 
 #define IRQ   (4)
 #define RESET (6)  // Not connected by default on the NFC Shield
-#define PYPATH F("/mnt/sda1/arduino/FablabDoorman/logger.py")
-#define DATEMANAGER F("/mnt/sda1/arduino/FablabDoorman/datemanager.py")
+#define PYPATH F("/mnt/sda1/arduino/FablabDoorman/www/logger.py")
+#define DATEMANAGER F("/mnt/sda1/arduino/FablabDoorman/www/datemanager.py")
 
 const int lockEnable = 9,
 feedbackLed = 13,

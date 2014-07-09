@@ -100,10 +100,20 @@ def check_allowed_user(dataBase, cardcode=None):
 
   if cardcode:
 		cardcode = (cardcode,)
-		c.execute("select count (*) from fablaballowedusers where cardcode=?", cardcode)
+		c.execute("select count (*) from arduinoallowedusers where cardcode=?", cardcode)
 		result = c.fetchone()[0]
+			
+		if result > 0:
+	                        c.execute("select username from arduinoallowedusers where cardcode=?", cardcode)
+				name = c.fetchone()[0]
+				print 'y'
+				#print name
 		
-		if result > 0: # the cardcode is present in the database
+		else:
+		      c.execute("select count (*) from fablaballowedusers where cardcode=?", cardcode)
+		      result = c.fetchone()[0]
+		
+		      if result > 0: # the cardcode is present in the database
 			# now check the time
 			c.execute("select timeAccessProfile from fablaballowedusers where cardcode=?", cardcode)
 			timeAccessProfile = c.fetchone()[0] # string corresponding to the timeAccessProfile
@@ -124,7 +134,7 @@ def check_allowed_user(dataBase, cardcode=None):
 				# check if request is in the time range
 				if now >= start_date and now <= stop_date:
 					print 'y'
-					print weekday
+					#print weekday
 					#print name
 					
 				else:
@@ -136,17 +146,8 @@ def check_allowed_user(dataBase, cardcode=None):
 			else:
 				print 'n'
 				#print 'nowend'
-
-		else:
-			c.execute("select count (*) from arduinoallowedusers where cardcode=?", cardcode)
-			result = c.fetchone()[0]
 			
-			if result > 0:
-	                        c.execute("select username from arduinoallowedusers where cardcode=?", cardcode)
-				name = c.fetchone()[0]
-				print 'y'
-				#print name
-			else:
+		      else:
 				c.execute("select count (*) from visitorsallowedusers where cardcode=?", cardcode)
 				result = c.fetchone()[0]
 			
