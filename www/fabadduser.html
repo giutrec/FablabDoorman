@@ -1,0 +1,30 @@
+<html>
+<head>
+</head>
+<body>
+<form action="fabpost.php" method="POST">
+    <table>
+        <tr>
+            <td>Name:</td><td><input name="username"/></td>
+        </tr>
+        <tr>
+            <td>CardCode:</td><td><input name="cardcode"/></td>
+        </tr>
+        <tr>
+            <td></td><td><fieldset>
+        <legend>Accesso: </legend>
+        Direttivo <input type="radio" name="access" value="direttivo"/>
+        Host  <input type="radio" name="access" value="host"/>
+        Ordinario <input type="radio" name="access" value="ordinario"/>
+    </fieldset></td>
+        </tr>
+        <tr>
+            <td></td><td><input type="submit" value="Submit"/></td>
+        </tr>
+	<tr>
+	<td><a href="javascript:history.back()"> torna indietro </a></td>
+	</tr>
+    </table>
+</form>
+</body>
+</html>

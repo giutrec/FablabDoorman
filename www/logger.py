@@ -158,7 +158,7 @@ def check_allowed_user(dataBase, cardcode=None):
 						                        
 						now = datetime.today()
 						nowh = now.strftime('%H')
-						if int(queryres[3]) < int(nowh) < int(queryres[4]):
+						if int(queryres[3]) <= int(nowh) <= int(queryres[4]):
 							print 'y'
 						else:
 							print 'n'	
