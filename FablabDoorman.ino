@@ -13,9 +13,10 @@ LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars
 #define DATEMANAGER F("/mnt/sda1/arduino/www/FablabDoorman/datemanager.py")
 
 const int lockEnable = 9,
-feedbackLed = 13,
-greenLed = 12,
-redLed = 11;
+secondPort = 7,
+feedbackLed = 5;
+//greenLed = 12,
+//redLed = 11;
 
 Adafruit_NFCShield_I2C nfc(IRQ, RESET);
 
@@ -24,12 +25,14 @@ uint8_t uidPrev[7];
 void setup() {
   pinMode(lockEnable, OUTPUT);
   pinMode(feedbackLed, OUTPUT);
-  pinMode(greenLed, OUTPUT);
-  pinMode(redLed, OUTPUT);
-  digitalWrite(lockEnable, HIGH);  // make sure the door is locked
+  pinMode(secondPort, OUTPUT);
+//  pinMode(greenLed, OUTPUT);
+//  pinMode(redLed, OUTPUT);
+  digitalWrite(lockEnable, LOW);  // make sure the door is locked
+  digitalWrite(secondPort, LOW);
   digitalWrite(feedbackLed, LOW);
-  digitalWrite(greenLed, LOW);
-  digitalWrite(redLed, LOW);
+//  digitalWrite(greenLed, LOW);
+//  digitalWrite(redLed, LOW);
 
   Bridge.begin();
   nfc.begin();
@@ -40,7 +43,7 @@ void setup() {
   lcd.print("FablabDoorman");
   lcd.setCursor(0, 1);
   lcd.print("loading...");
-  delay(5000);
+  delay(1000);
 
 #ifdef DEBUG
   Serial.begin(115200);
@@ -63,7 +66,7 @@ void setup() {
 }
 
 void loop() {
-  opening_check();
+//  opening_check();
   uint8_t successID;
   uint8_t uid[] = {
     0, 0, 0, 0, 0, 0, 0
@@ -97,18 +100,20 @@ void loop() {
 #endif
       if (c == '\n')
       {
-        digitalWrite(redLed, HIGH);
-        delay(2000);
-        digitalWrite(redLed, LOW);
+//        digitalWrite(redLed, HIGH);
+//        delay(2000);
+//        digitalWrite(redLed, LOW);
         break;
       }
       else if (c == 'y')
       {
         digitalWrite(lockEnable, HIGH);
-        digitalWrite(greenLed, HIGH);
-        delayAndBlink(2000);
-        digitalWrite(greenLed, LOW);       
+        digitalWrite(secondPort, HIGH);
+        delayAndBlink(500);
+//        digitalWrite(greenLed, LOW);       
         digitalWrite(lockEnable, LOW);
+        delay(15000);
+        digitalWrite(secondPort, LOW);
       }
       else {
         digitalWrite(lockEnable, LOW);
@@ -163,8 +168,13 @@ String intArrayToHexString(uint8_t array[], int length)
   String output = "";
 
   for (int i = 0; i < length; i++)
+  {
+    if (array[i] < 0xF)
+    {
+      output += '0';
+    }
     output += String(array[i], HEX);
-
+  }
   output.toUpperCase();
 
   return output;

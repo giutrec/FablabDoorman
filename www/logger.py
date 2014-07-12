@@ -110,28 +110,49 @@ def check_allowed_user(dataBase, cardcode=None):
 				#print name
 		
 		else:
-		      c.execute("select count (*) from fablaballowedusers where cardcode=?", cardcode)
-		      result = c.fetchone()[0]
+		  
+		     c.execute("select count (*) from visitorsallowedusers where cardcode=?", cardcode)
+		     result = c.fetchone()[0]
+		     
+		     if result > 0:
+				c.execute("select * from visitorsallowedusers where cardcode=?", cardcode)
+				nowtime = int(time.time())
+				queryres = c.fetchone()
+				if  int(queryres[6]) <  nowtime < int(queryres[5]) :
+					                        
+					now = datetime.today()
+					nowh = now.strftime('%H')
+					if int(queryres[3]) <= int(nowh) <= int(queryres[4]):
+						print 'y'
+					else:
+						print 'n'	
+										
+				else:
+					print 'n' 
+		     else:
+				
+			c.execute("select count (*) from fablaballowedusers where cardcode=?", cardcode)
+			result = c.fetchone()[0]
 		
-		      if result > 0: # the cardcode is present in the database
+			if result > 0: # the cardcode is present in the database
 			# now check the time
-			c.execute("select timeAccessProfile from fablaballowedusers where cardcode=?", cardcode)
-			timeAccessProfile = c.fetchone()[0] # string corresponding to the timeAccessProfile
-			options[timeAccessProfile]() #search inside the dictionary
+			  c.execute("select timeAccessProfile from fablaballowedusers where cardcode=?", cardcode)
+			  timeAccessProfile = c.fetchone()[0] # string corresponding to the timeAccessProfile
+			  options[timeAccessProfile]() #search inside the dictionary
 
-			# some time conversions 
-			now = datetime.today()
-			start_date_string = now.strftime("%Y-%m-%d ") + start_time
-			start_date = datetime.strptime(start_date_string, format)
+			  # some time conversions 
+			  now = datetime.today()
+			  start_date_string = now.strftime("%Y-%m-%d ") + start_time
+			  start_date = datetime.strptime(start_date_string, format)
 
-			stop_date_string = now.strftime("%Y-%m-%d ") + stop_time
-			stop_date = datetime.strptime(stop_date_string, format)
+			  stop_date_string = now.strftime("%Y-%m-%d ") + stop_time
+			  stop_date = datetime.strptime(stop_date_string, format)
 
-			weekday = now.isoweekday()
-			c.execute("select username from fablaballowedusers where cardcode=?", cardcode)
-                        name = c.fetchone()[0]
-			if	 1 < weekday <= 5 : # weekly day
-				# check if request is in the time range
+			  weekday = now.isoweekday()
+			  c.execute("select username from fablaballowedusers where cardcode=?", cardcode)
+			  name = c.fetchone()[0]
+			  if	 1 < weekday <= 5 : # weekly day
+				  # check if request is in the time range
 				if now >= start_date and now <= stop_date:
 					print 'y'
 					#print weekday
@@ -140,37 +161,14 @@ def check_allowed_user(dataBase, cardcode=None):
 				else:
 					print 'n'
 					#print 'outofhours'
-			elif weekend == True:
-				print 'y'
-				#print name
+			  elif weekend == True:
+				  print 'y'
+				  #print name
 			else:
 				print 'n'
 				#print 'nowend'
 			
-		      else:
-				c.execute("select count (*) from visitorsallowedusers where cardcode=?", cardcode)
-				result = c.fetchone()[0]
-			
-				if result > 0:
-					c.execute("select * from visitorsallowedusers where cardcode=?", cardcode)
-					nowtime = int(time.time())
-					queryres = c.fetchone()
-					if  int(queryres[6]) <  nowtime < int(queryres[5]) :
-						                        
-						now = datetime.today()
-						nowh = now.strftime('%H')
-						if int(queryres[3]) <= int(nowh) <= int(queryres[4]):
-							print 'y'
-						else:
-							print 'n'	
-												
-					else:
-						print 'n' 
-				else:
-					print 'n'
-
   return
 
 log_rfid_read(db, cardcode)
 check_allowed_user(db, cardcode)
-
