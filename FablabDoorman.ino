@@ -117,6 +117,7 @@ void loop() {
       }
       else {
         digitalWrite(lockEnable, LOW);
+        digitalWrite(secondPort, LOW);
       }
     }
   }

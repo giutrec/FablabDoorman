@@ -12,7 +12,8 @@ if ($username == '' || $cardcode == '' || $access == ''){
 print 'tutti i campi sono obbligatori <br>';
 print '<a href="javascript:history.back()"> torna indietro </a>';
 }else{
-//Insert record  
+//Insert record
+$cardcode = strtoupper($cardcode);
 $db->exec("INSERT INTO fablaballowedusers (username, cardcode, timeAccessProfile) VALUES ('$username', '$cardcode', '$access');");
 print 'aggiunto correttamente!<br>';
 print '<a href="javascript:history.back()"> aggiungi un alto utente </a>';

@@ -26,6 +26,7 @@ print '<a href="javascript:history.back()"> torna indietro </a>';
 $startdate = mktime($shour, 0, 0, $smonth, $sday, $syear);
 $expiredate = mktime($ehour, 0, 0, $emonth, $eday, $eyear);
 //Insert record  
+$cardcode = strtoupper($cardcode);
 $db->exec("INSERT INTO visitorsallowedusers (username, cardcode, start_time, end_time, expiredate, startdate) VALUES ('$username', '$cardcode', '$shour', '$ehour', '$expiredate', '$startdate' );");
 print 'aggiunto correttamente!<br>';
 print '<a href="javascript:history.back()"> aggiungi un alto utente </a>';
