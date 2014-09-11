@@ -5,35 +5,35 @@ import sqlite3
 from datetime import datetime
 import time
 import os
+
 source_dir = os.path.dirname(os.path.abspath(__file__))
 cardcode = ''.join(argv[1])
 db = sqlite3.connect(os.path.join(source_dir, 'logger.db'))
 c = db.cursor()
 format = "%Y-%m-%d %H:%M"
-start_time = "16:00"
-stop_time = "19:00"
-weekend = False
 
-def Direttivo():
-				global start_time, stop_time, weekend
-				start_time = "00:00"
-				stop_time = "23:59"
-				weekend = True
-def Host():
-				global start_time, stop_time, weekend
-				start_time = "15:00"
-				stop_time = "23:59"
-				weekend = True
-def Ordinario():
-				global start_time, stop_time, weekend	
-				start_time = "16:15"
-				stop_time = "20:00"
-				weekend = False
-	
-#dictionary with all time profiles 
-options = {"direttivo" : Direttivo,
-           "host" : Host,
-           "ordinario" : Ordinario,
+class Profile(object):
+    def __init__(self, start_time="16:00", stop_time="19:00", weekend=False):
+        self.start_time = start_time
+        self.stop_time = stop_time
+        self.weekend = weekend
+
+class Direttivo(Profile):
+    def __init__(self):
+        super(self, Direttivo).__init__(start_time="00:00", stop_time="23:59", weekend=True)
+
+class Host(Profile):
+    def __init__(self):
+        super(self, Host).__init__(start_time="15:00", stop_time="23:59", weekend=True)
+
+class Ordinario(Profile):
+    def __init__(self):
+        super(self, Ordinario).__init__(start_time="16:15", stop_time="20:00", weekend=False)
+
+TIME_PROFILES = {
+    "direttivo": Direttivo,
+    "host":  Host,
+    "ordinario": Ordinario,
 }
 
 c.execute('''CREATE TABLE IF NOT EXISTS intothedoor(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, datetime TEXT NOT NULL, cardcode TEXT NOT NULL)''')
@@ -138,20 +138,24 @@ def check_allowed_user(dataBase, cardcode=None):
 			# now check the time
 			  c.execute("select timeAccessProfile from fablaballowedusers where cardcode=?", cardcode)
 			  timeAccessProfile = c.fetchone()[0] # string corresponding to the timeAccessProfile
-			  options[timeAccessProfile]() #search inside the dictionary
+			  klass = TIME_PROFILES.get(timeAccessProfile)
+			  # default profile
+			  if not profile:
+			      klass = Profile
+			  profile = klass()
 
 			  # some time conversions 
 			  now = datetime.today()
-			  start_date_string = now.strftime("%Y-%m-%d ") + start_time
+			  start_date_string = now.strftime("%Y-%m-%d ") + profile.start_time
 			  start_date = datetime.strptime(start_date_string, format)
 
-			  stop_date_string = now.strftime("%Y-%m-%d ") + stop_time
+			  stop_date_string = now.strftime("%Y-%m-%d ") + profile.stop_time
 			  stop_date = datetime.strptime(stop_date_string, format)
 
 			  weekday = now.isoweekday()
 			  c.execute("select username from fablaballowedusers where cardcode=?", cardcode)
 			  name = c.fetchone()[0]
-			  if	 1 < weekday <= 5 : # weekly day
+			  if 1 < weekday <= 5 : # weekly day
 				  # check if request is in the time range
 				if now >= start_date and now <= stop_date:
 					print 'y'
@@ -161,10 +165,10 @@ def check_allowed_user(dataBase, cardcode=None):
 				else:
 					print 'n'
 					#print 'outofhours'
-			  elif weekend == True:
+			  elif profile.weekend == True:
 				  print 'y'
 				  #print name
-			else:
+			  else:
 				print 'n'
 				#print 'nowend'
 			
