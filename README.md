@@ -54,7 +54,7 @@ The **intothedoor** is a table used to log all the access, structured with the f
 * id *INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL*
 * datetime *TEXT NOT NULL*
 * cardcode *TEXT NOT NULL*
-
+ 
 For simplicty database structure is automatically created after the first execution. You can connect to your YUN via SSH and manually run the python script to setup the database.
 
 ##### Adding a New User
